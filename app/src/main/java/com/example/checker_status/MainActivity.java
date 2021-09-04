@@ -32,6 +32,20 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private int PORT = 0;
+    private String PSK = "";
+    private String SEPARATOR = ";";
+
+    private void parseConfig(String config)
+    {
+        if (config.length() > 0) {
+            String[] subs = config.split(SEPARATOR);
+            if (subs.length == 2) {
+                PORT = Integer.parseInt(subs[0].trim());
+                PSK = subs[1];
+            }
+        }
+    }
 
     private void writeToFile(String data, Context context) {
         try {
@@ -115,9 +129,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
-                TextView view = (TextView)findViewById(R.id.textview_first);
-                view.setText(contents);
                 writeToFile(contents, this);
+                parseConfig(contents);
             }
             if(resultCode == RESULT_CANCELED){
                 //handle cancel
@@ -158,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         String contents = readFromFile(this);
-        TextView view = (TextView) findViewById(R.id.textview_first);
-        view.setText(contents);
+        parseConfig(contents);
     }
 }
