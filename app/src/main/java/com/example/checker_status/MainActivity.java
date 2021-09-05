@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Base64;
 import android.view.View;
 
 import androidx.navigation.NavController;
@@ -34,6 +35,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 interface ICallback
 {
@@ -96,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private int PORT = 0;
-    private String PSK = "";
     private String SEPARATOR = ";";
     private UDPServer client;
     private String msg = "";
@@ -109,11 +114,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private void parseConfig(String config)
     {
         if (config.length() > 0) {
-            String[] subs = config.split(SEPARATOR);
-            if (subs.length == 2) {
-                PORT = Integer.parseInt(subs[0].trim());
-                PSK = subs[1];
-            }
+            PORT = Integer.parseInt(config.trim());
         }
     }
 
