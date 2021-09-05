@@ -79,12 +79,18 @@ class UDPServer {
                     udpSocket.setSoTimeout(1000);
 
                     while (isRunning) {
+                        try {
                             byte[] buf = new byte[1000000];
                             DatagramPacket packet = new DatagramPacket(buf, buf.length);
                             udpSocket.receive(packet);
                             if (callback != null) {
                                 callback.callback(new String(packet.getData()));
                             }
+                        }
+                        catch (Exception e)
+                        {
+                            // Nothing to do
+                        }
                     }
                 }
                 catch (Exception e)
