@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private String msg = "";
     private String lastCheckDate = "";
     private DrawView drawView;
+    private String CONFIG_FILE = "config.txt";
 
     public class checker
     {
@@ -213,9 +214,9 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         }
     }
 
-    private void writeToFile(String data, Context context) {
+    private void writeToFile(String data, Context context, String filename) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         }
@@ -225,12 +226,12 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         }
     }
 
-    private String readFromFile(Context context) {
+    private String readFromFile(Context context, String filename) {
 
         String ret = "";
 
         try {
-            InputStream inputStream = context.openFileInput("config.txt");
+            InputStream inputStream = context.openFileInput(filename);
 
             if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -287,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
 
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
-                writeToFile(contents, this);
+                writeToFile(contents, this, CONFIG_FILE);
                 parseConfig(contents);
             }
         }
@@ -296,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     @Override
     protected void onStart() {
         super.onStart();
-        String contents = readFromFile(this);
+        String contents = readFromFile(this, CONFIG_FILE);
         parseConfig(contents);
 
         client.setCallback(this);
