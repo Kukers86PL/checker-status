@@ -85,7 +85,7 @@ class UDPServer {
                 try {
                     String msg = "";
                     udpSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
-                    udpSocket.setSoTimeout(5000);
+                    udpSocket.setSoTimeout(1000);
 
                     while (isRunning) {
                         try {
@@ -175,12 +175,21 @@ class DrawView extends View {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        int numberOfDots = Math.max(checkers.size(), 1);
+        int dotSize = Math.max(Math.max(this.getWidth() / numberOfDots, this.getHeight() / numberOfDots) - 20, 500);
+        int columns = Math.max(this.getWidth() / dotSize, 1);
+        int rows = Math.max(checkers.size() / columns, 1);
+        int textSize = 60;
+
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(50);
+        paint.setTextSize(textSize);
 
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
+                int x = (i % columns) * dotSize + dotSize / 2;
+                int y = ((i / columns) % rows) * dotSize + dotSize / 2 + Y + textSize * 3;
+
                 MainActivity.checker checker = checkers.get(i);
                 paint.setStyle(Paint.Style.FILL);
                 if (checker.isGreen) {
@@ -188,15 +197,15 @@ class DrawView extends View {
                 } else {
                     paint.setColor(Color.RED);
                 }
-                canvas.drawCircle(getWidth() / 2, (400 * i) + 400 + Y, 190, paint);
+                canvas.drawCircle(x, y, dotSize / 2, paint);
                 paint.setColor(Color.BLACK);
-                drawString(canvas, checker.label, getWidth() / 2, (400 * i) + 400 + Y, paint);
+                drawString(canvas, checker.label, x, y, paint);
             }
         }
 
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(lastCheckDate, getWidth() / 2, 150, paint);
+        canvas.drawText(lastCheckDate, getWidth() / 2, textSize * 2, paint);
 
     }
 
