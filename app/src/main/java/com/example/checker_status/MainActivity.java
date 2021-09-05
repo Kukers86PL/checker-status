@@ -1,5 +1,6 @@
 package com.example.checker_status;
 
+import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -13,8 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.TextPaint;
 import android.util.Base64;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.core.view.GestureDetectorCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -125,6 +129,7 @@ class DrawView extends View {
     private ArrayList<MainActivity.checker> checkers = null;
     private String lastCheckDate = "Unknown";
     Paint paint = new Paint();
+    private Integer Y = 0;
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
     {
@@ -135,6 +140,16 @@ class DrawView extends View {
 
     public DrawView(Context context) {
         super(context);
+    }
+
+    public void yUp() {
+        Y += 30;
+        invalidate();
+    }
+
+    public void yDown() {
+        Y -= 30;
+        invalidate();
     }
 
     private void drawString(Canvas canvas, String text, int x, int y, Paint paint)
@@ -160,11 +175,6 @@ class DrawView extends View {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        paint.setColor(Color.WHITE);
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(100);
-        canvas.drawText(lastCheckDate, getWidth() / 2, 150, paint);
-
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
                 MainActivity.checker checker = checkers.get(i);
@@ -174,16 +184,22 @@ class DrawView extends View {
                 } else {
                     paint.setColor(Color.RED);
                 }
-                canvas.drawCircle(getWidth() / 2, (1000 * i) + 800, 500, paint);
+                canvas.drawCircle(getWidth() / 2, (1000 * i) + 800 + Y, 500, paint);
                 paint.setColor(Color.BLACK);
-                drawString(canvas, checker.label, getWidth() / 2, (1000 * i) + 800, paint);
+                drawString(canvas, checker.label, getWidth() / 2, (1000 * i) + 800 + Y, paint);
             }
         }
+
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(100);
+        canvas.drawText(lastCheckDate, getWidth() / 2, 150, paint);
+
     }
 
 }
 
-public class MainActivity extends AppCompatActivity implements ICallback {
+public class MainActivity extends AppCompatActivity implements ICallback, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     private ActivityMainBinding binding;
     private int PORT = 0;
@@ -194,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private DrawView drawView;
     private String CONFIG_FILE = "config.txt";
     private String DATA_FILE = "data.txt";
+    private GestureDetectorCompat mDetector;
 
     public class checker
     {
@@ -275,10 +292,74 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event){
+        if (this.mDetector.onTouchEvent(event)) {
+            return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent event1, MotionEvent event2,
+                           float velocityX, float velocityY) {
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent event) {
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX,
+                            float distanceY) {
+        if (distanceY < 0)
+        {
+            drawView.yUp();
+        }
+        else
+        {
+            drawView.yDown();
+        }
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent event) {
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent event) {
+        return true;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent event) {
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         drawView = new DrawView(this);
+
+        mDetector = new GestureDetectorCompat(this,this);
+        mDetector.setOnDoubleTapListener(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         binding.getRoot().setBackgroundColor(Color.BLACK);
