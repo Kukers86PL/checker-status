@@ -2,13 +2,16 @@ package com.example.checker_status;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.TextPaint;
 import android.util.Base64;
 import android.view.View;
 
@@ -76,7 +79,7 @@ class UDPServer {
                 try {
                     String msg = "";
                     udpSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
-                    udpSocket.setSoTimeout(1000);
+                    udpSocket.setSoTimeout(5000);
 
                     while (isRunning) {
                         try {
@@ -115,6 +118,33 @@ class UDPServer {
     }
 }
 
+class DrawView extends View {
+
+    private ArrayList<MainActivity.checker> checkers = null;
+    private String lastCheckDate = "Unknown";
+
+    public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
+    {
+        this.lastCheckDate = lastCheckDate;
+        this.checkers = (ArrayList<MainActivity.checker>) checkers;
+        this.invalidate();
+    }
+
+    public DrawView(Context context) {
+        super(context);
+    }
+
+    @Override
+    public void onDraw(Canvas canvas) {
+        Paint paint = new Paint();
+
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(100);
+        canvas.drawText(lastCheckDate, 10, 200, paint);
+    }
+
+}
+
 public class MainActivity extends AppCompatActivity implements ICallback {
 
     private ActivityMainBinding binding;
@@ -123,8 +153,9 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private UDPServer client = new UDPServer();
     private String msg = "";
     private String lastCheckDate = "";
+    private DrawView drawView;
 
-    private class checker
+    public class checker
     {
         public String label;
         public Boolean isGreen;
@@ -153,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     {
         this.msg = msg;
         parseMsg(msg);
+        drawView.setData(lastCheckDate, checkers);
     }
 
     private void parseConfig(String config)
@@ -204,10 +236,22 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            drawView.invalidate();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            drawView.invalidate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding.getRoot().setBackgroundColor(Color.BLACK);
         setContentView(binding.getRoot());
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
