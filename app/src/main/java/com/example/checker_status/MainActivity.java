@@ -177,7 +177,7 @@ class DrawView extends View {
 
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(100);
+        paint.setTextSize(50);
 
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
@@ -188,9 +188,9 @@ class DrawView extends View {
                 } else {
                     paint.setColor(Color.RED);
                 }
-                canvas.drawCircle(getWidth() / 2, (800 * i) + 800 + Y, 400, paint);
+                canvas.drawCircle(getWidth() / 2, (400 * i) + 400 + Y, 190, paint);
                 paint.setColor(Color.BLACK);
-                drawString(canvas, checker.label, getWidth() / 2, (800 * i) + 800 + Y, paint);
+                drawString(canvas, checker.label, getWidth() / 2, (400 * i) + 400 + Y, paint);
             }
         }
 
