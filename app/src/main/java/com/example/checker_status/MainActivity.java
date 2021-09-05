@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -140,8 +142,9 @@ class DrawView extends View {
         super.onDraw(canvas);
 
         paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(100);
-        canvas.drawText(lastCheckDate, 20, 200, paint);
+        canvas.drawText(lastCheckDate, getWidth() / 2, 150, paint);
 
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
@@ -153,6 +156,8 @@ class DrawView extends View {
                     paint.setColor(Color.RED);
                 }
                 canvas.drawCircle(getWidth() / 2, (1000 * i) + 800, 500, paint);
+                paint.setColor(Color.BLACK);
+                canvas.drawText(checker.label, getWidth() / 2, (1000 * i) + 800, paint);
             }
         }
     }
