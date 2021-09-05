@@ -187,6 +187,16 @@ class DrawView extends View {
 
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
+
+                if (Y < -(rows * dotSize / 2) + dotSize / 2)
+                {
+                    Y = -(rows * dotSize / 2) + dotSize / 2;
+                }
+                if (Y > 0)
+                {
+                    Y = 0;
+                }
+
                 int x = (i % columns) * dotSize + dotSize / 2;
                 int y = ((i / columns) % rows) * dotSize + dotSize / 2 + Y + textSize * 3;
 
