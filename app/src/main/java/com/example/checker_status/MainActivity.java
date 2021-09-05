@@ -250,9 +250,12 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        drawView = new DrawView(this);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         binding.getRoot().setBackgroundColor(Color.BLACK);
         setContentView(binding.getRoot());
+        binding.getRoot().addView(drawView);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
