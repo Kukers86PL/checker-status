@@ -137,6 +137,25 @@ class DrawView extends View {
         super(context);
     }
 
+    private void drawString(Canvas canvas, String text, int x, int y, Paint paint)
+    {
+        if (text.contains("\n"))
+        {
+            String[] texts = text.split("\n");
+
+            for (String txt : texts)
+            {
+                canvas.drawText(txt, x, y, paint);
+
+                y += paint.getTextSize();
+            }
+        }
+        else
+        {
+            canvas.drawText(text, x, y, paint);
+        }
+    }
+
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -157,7 +176,7 @@ class DrawView extends View {
                 }
                 canvas.drawCircle(getWidth() / 2, (1000 * i) + 800, 500, paint);
                 paint.setColor(Color.BLACK);
-                canvas.drawText(checker.label, getWidth() / 2, (1000 * i) + 800, paint);
+                drawString(canvas, checker.label, getWidth() / 2, (1000 * i) + 800, paint);
             }
         }
     }
