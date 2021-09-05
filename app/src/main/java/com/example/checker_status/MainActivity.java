@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private String lastCheckDate = "";
     private DrawView drawView;
     private String CONFIG_FILE = "config.txt";
+    private String DATA_FILE = "data.txt";
 
     public class checker
     {
@@ -205,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         this.msg = msg;
         parseMsg(msg);
         drawView.setData(lastCheckDate, checkers);
+        writeToFile(msg, this, DATA_FILE);
     }
 
     private void parseConfig(String config)
@@ -299,6 +301,10 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         super.onStart();
         String contents = readFromFile(this, CONFIG_FILE);
         parseConfig(contents);
+
+        msg = readFromFile(this, DATA_FILE);
+        parseMsg(msg);
+        drawView.setData(lastCheckDate, checkers);
 
         client.setCallback(this);
         client.start(PORT);
