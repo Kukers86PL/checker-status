@@ -49,63 +49,72 @@ interface ICallback
 }
 
 class UDPServer {
-    private DatagramSocket udpSocket;
-    private int port;
+    private DatagramSocket udpSocket = null;
     private Boolean isRunning = false;
     private ICallback callback = null;
+    private int port = 0;
+    Thread thread = null;
 
-    public UDPServer(int port, ICallback callback) {
-        this.port = port;
+    public UDPServer() {
+    }
+
+    public void setCallback(ICallback callback) {
         this.callback = callback;
     }
 
-    public void start()
+    public void start(int port)
     {
-        try {
-            udpSocket = new DatagramSocket(this.port, InetAddress.getByName("0.0.0.0"));
-            udpSocket.setSoTimeout(5000);
-        } catch (IOException e) {
-            // Nothing to do
+        if (isRunning)
+        {
+            stop();
         }
+        this.port = port;
         isRunning = true;
 
         Runnable runnable = new Runnable(){
             public void run() {
-                String msg = "";
+                try {
+                    String msg = "";
+                    udpSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
+                    udpSocket.setSoTimeout(1000);
 
-                while (isRunning) {
-
-                    byte[] buf = new byte[256000];
-                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
-                    // blocks until a packet is received
-                    try {
-                        udpSocket.receive(packet);
-                        callback.callback(new String(packet.getData()));
-                    } catch (IOException e) {
-                        // Nothing to do
+                    while (isRunning) {
+                            byte[] buf = new byte[1000000];
+                            DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                            udpSocket.receive(packet);
+                            if (callback != null) {
+                                callback.callback(new String(packet.getData()));
+                            }
                     }
+                }
+                catch (Exception e)
+                {
+                    // Nothing to do
                 }
             }
         };
 
-        Thread thread = new Thread(runnable);
+        thread = new Thread(runnable);
         thread.start();
     }
 
     public void stop()
     {
         isRunning = false;
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            // nothing to do
+        }
     }
 }
 
 public class MainActivity extends AppCompatActivity implements ICallback {
 
-    private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private int PORT = 0;
     private String SEPARATOR = ";";
-    private UDPServer client;
+    private UDPServer client = new UDPServer();
     private String msg = "";
     private String lastCheckDate = "";
 
@@ -226,32 +235,12 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
         String contents = readFromFile(this);
         parseConfig(contents);
 
-        client = new UDPServer(PORT, this);
-        client.start();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        client.stop();
+        client.setCallback(this);
+        client.start(PORT);
     }
 }
