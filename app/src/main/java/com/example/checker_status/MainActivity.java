@@ -2,10 +2,10 @@ package com.example.checker_status;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +20,7 @@ import com.example.checker_status.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -28,13 +29,82 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-public class MainActivity extends AppCompatActivity {
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
+interface ICallback
+{
+    void callback(String msg);
+}
+
+class UDPServer {
+    private DatagramSocket udpSocket;
+    private int port;
+    private Boolean isRunning = false;
+    private ICallback callback = null;
+
+    public UDPServer(int port, ICallback callback) {
+        this.port = port;
+        this.callback = callback;
+    }
+
+    public void start()
+    {
+        try {
+            udpSocket = new DatagramSocket(this.port, InetAddress.getByName("0.0.0.0"));
+            udpSocket.setSoTimeout(5000);
+        } catch (IOException e) {
+            // Nothing to do
+        }
+        isRunning = true;
+
+        Runnable runnable = new Runnable(){
+            public void run() {
+                String msg = "";
+
+                while (isRunning) {
+
+                    byte[] buf = new byte[256000];
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
+                    // blocks until a packet is received
+                    try {
+                        udpSocket.receive(packet);
+                        callback.callback(new String(packet.getData()));
+                    } catch (IOException e) {
+                        // Nothing to do
+                    }
+                }
+            }
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+    public void stop()
+    {
+        isRunning = false;
+    }
+}
+
+public class MainActivity extends AppCompatActivity implements ICallback {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private int PORT = 0;
     private String PSK = "";
     private String SEPARATOR = ";";
+    private UDPServer client;
+    private String msg = "";
+
+    public void callback(String msg)
+    {
+        this.msg = msg;
+    }
 
     private void parseConfig(String config)
     {
@@ -172,5 +242,14 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         String contents = readFromFile(this);
         parseConfig(contents);
+
+        client = new UDPServer(PORT, this);
+        client.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        client.stop();
     }
 }
