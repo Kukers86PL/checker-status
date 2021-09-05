@@ -143,12 +143,12 @@ class DrawView extends View {
     }
 
     public void yUp() {
-        Y += 30;
+        Y += 35;
         invalidate();
     }
 
     public void yDown() {
-        Y -= 30;
+        Y -= 35;
         invalidate();
     }
 
@@ -175,6 +175,10 @@ class DrawView extends View {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(100);
+
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
                 MainActivity.checker checker = checkers.get(i);
@@ -184,15 +188,14 @@ class DrawView extends View {
                 } else {
                     paint.setColor(Color.RED);
                 }
-                canvas.drawCircle(getWidth() / 2, (1000 * i) + 800 + Y, 500, paint);
+                canvas.drawCircle(getWidth() / 2, (800 * i) + 800 + Y, 400, paint);
                 paint.setColor(Color.BLACK);
-                drawString(canvas, checker.label, getWidth() / 2, (1000 * i) + 800 + Y, paint);
+                drawString(canvas, checker.label, getWidth() / 2, (800 * i) + 800 + Y, paint);
             }
         }
 
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(100);
         canvas.drawText(lastCheckDate, getWidth() / 2, 150, paint);
 
     }
