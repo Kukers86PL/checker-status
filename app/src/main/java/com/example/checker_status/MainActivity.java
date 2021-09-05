@@ -122,7 +122,7 @@ class DrawView extends View {
 
     private ArrayList<MainActivity.checker> checkers = null;
     private String lastCheckDate = "Unknown";
-    private Paint paint = new Paint();
+    Paint paint = new Paint();
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
     {
@@ -141,7 +141,20 @@ class DrawView extends View {
 
         paint.setColor(Color.WHITE);
         paint.setTextSize(100);
-        canvas.drawText(lastCheckDate, 10, 200, paint);
+        canvas.drawText(lastCheckDate, 20, 200, paint);
+
+        if (checkers != null) {
+            for (int i = 0; i < checkers.size(); i++) {
+                MainActivity.checker checker = checkers.get(i);
+                paint.setStyle(Paint.Style.FILL);
+                if (checker.isGreen) {
+                    paint.setColor(Color.GREEN);
+                } else {
+                    paint.setColor(Color.RED);
+                }
+                canvas.drawCircle(getWidth() / 2, (1000 * i) + 800, 500, paint);
+            }
+        }
     }
 
 }
@@ -175,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
             {
                 checker temp = new checker();
                 temp.label = subs[(i * 2) + 1];
-                temp.isGreen = (subs[(i * 2) + 2] == "1");
+                temp.isGreen = subs[(i * 2) + 2].contains("1");
                 checkers.add(temp);
             }
         }
