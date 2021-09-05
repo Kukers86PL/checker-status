@@ -36,6 +36,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -105,10 +107,37 @@ public class MainActivity extends AppCompatActivity implements ICallback {
     private String SEPARATOR = ";";
     private UDPServer client;
     private String msg = "";
+    private String lastCheckDate = "";
+
+    private class checker
+    {
+        public String label;
+        public Boolean isGreen;
+    }
+
+    private ArrayList<checker> checkers = new ArrayList<checker>();
+
+    void parseMsg(String msg)
+    {
+        checkers.clear();
+        if (msg.length() > 0)
+        {
+            String[] subs = msg.split(SEPARATOR);
+            lastCheckDate = subs[0];
+            for(int i = 0; i < (subs.length - 1) / 2; i++)
+            {
+                checker temp = new checker();
+                temp.label = subs[(i * 2) + 1];
+                temp.isGreen = (subs[(i * 2) + 2] == "1");
+                checkers.add(temp);
+            }
+        }
+    }
 
     public void callback(String msg)
     {
         this.msg = msg;
+        parseMsg(msg);
     }
 
     private void parseConfig(String config)
