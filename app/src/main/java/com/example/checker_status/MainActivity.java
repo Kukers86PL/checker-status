@@ -195,12 +195,6 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setSupportActionBar(binding.toolbar);
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -212,11 +206,7 @@ public class MainActivity extends AppCompatActivity implements ICallback {
                     startActivityForResult(intent, 0);
 
                 } catch (Exception e) {
-
-                    Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
-                    Intent marketIntent = new Intent(Intent.ACTION_VIEW,marketUri);
-                    startActivity(marketIntent);
-
+                    // Nothing to do
                 }
             }
         });
@@ -232,9 +222,6 @@ public class MainActivity extends AppCompatActivity implements ICallback {
                 writeToFile(contents, this);
                 parseConfig(contents);
             }
-            if(resultCode == RESULT_CANCELED){
-                //handle cancel
-            }
         }
     }
 
@@ -243,21 +230,6 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
