@@ -122,6 +122,7 @@ class DrawView extends View {
 
     private ArrayList<MainActivity.checker> checkers = null;
     private String lastCheckDate = "Unknown";
+    private Paint paint = new Paint();
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
     {
@@ -136,7 +137,7 @@ class DrawView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        Paint paint = new Paint();
+        super.onDraw(canvas);
 
         paint.setColor(Color.WHITE);
         paint.setTextSize(100);
@@ -213,37 +214,24 @@ public class MainActivity extends AppCompatActivity implements ICallback {
         try {
             InputStream inputStream = context.openFileInput("config.txt");
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append("\n").append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // Nothing to do
         }
 
         return ret;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            drawView.invalidate();
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            drawView.invalidate();
-        }
     }
 
     @Override
@@ -254,8 +242,8 @@ public class MainActivity extends AppCompatActivity implements ICallback {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         binding.getRoot().setBackgroundColor(Color.BLACK);
-        setContentView(binding.getRoot());
         binding.getRoot().addView(drawView);
+        setContentView(binding.getRoot());
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
