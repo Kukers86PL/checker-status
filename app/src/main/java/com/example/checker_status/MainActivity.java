@@ -130,7 +130,8 @@ class DrawView extends View {
     private String lastCheckDate = "Unknown";
     Paint paint = new Paint();
     private Integer Y = 0;
-    private Integer step = 30;
+    private Integer step = 40;
+    int textSize = 70;
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
     {
@@ -178,9 +179,8 @@ class DrawView extends View {
 
         int numberOfDots = Math.max(checkers.size(), 1);
         int dotSize = Math.max(Math.max(this.getWidth() / numberOfDots, this.getHeight() / numberOfDots), 500);
-        int columns = Math.max(this.getWidth() / dotSize, 1);
-        int rows = Math.max(this.getHeight() / dotSize ,checkers.size() / columns);
-        int textSize = 60;
+        int columns = Math.max(this.getWidth() / dotSize, 2);
+        int rows = Math.max(this.getHeight() / dotSize, checkers.size() / columns) + 1;
         int yBorder = (rows * dotSize) - (dotSize * (this.getHeight() / dotSize)) + (dotSize / 2);
 
         paint.setColor(Color.WHITE);
