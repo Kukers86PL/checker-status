@@ -243,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
         checkers.clear();
         if (msg.length() > 0)
         {
+            msg = new String(Base64.decode(msg.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT), StandardCharsets.UTF_8);
             String[] subs = msg.split(SEPARATOR);
             lastCheckDate = subs[0];
             for(int i = 0; i < (subs.length - 1) / 2; i++)
