@@ -50,6 +50,7 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 interface ICallback
@@ -244,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
         checkers.clear();
         if (msg.length() > 0)
         {
-            msg = new String(Base64.decode(msg.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT), StandardCharsets.UTF_8);
             String[] subs = msg.split(SEPARATOR);
             lastCheckDate = subs[0];
             for(int i = 0; i < (subs.length - 1) / 2; i++)
@@ -257,8 +257,37 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
         }
     }
 
+    private String Decrypt(String text, String key) {
+        try {
+            Cipher cipher = Cipher.getInstance
+                    ("AES/CBC/PKCS5Padding"); //this parameters should not be changed
+            byte[] keyBytes = new byte[16];
+            byte[] b = key.getBytes("UTF-8");
+            int len = b.length;
+            if (len > keyBytes.length)
+                len = keyBytes.length;
+            System.arraycopy(b, 0, keyBytes, 0, len);
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(keyBytes);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            byte[] results = new byte[text.length()];
+            try {
+                results = cipher.doFinal(Base64.decode(text, Base64.DEFAULT));
+            } catch (Exception e) {
+                // Nothing to do
+            }
+            return new String(results, "UTF-8"); // it returns the result as a String
+        }
+        catch (Exception e)
+        {
+            // Nothing to do
+        }
+        return "";
+    }
+
     public void callback(String msg)
     {
+        msg = Decrypt(msg, PSK);
         this.msg = msg;
         parseMsg(msg);
         drawView.setData(lastCheckDate, checkers);
