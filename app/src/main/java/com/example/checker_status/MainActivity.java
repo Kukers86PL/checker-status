@@ -73,44 +73,38 @@ class UDPServer {
 
     public void start(int port)
     {
-        if (isRunning)
-        {
-            stop();
-        }
-        this.port = port;
-        isRunning = true;
+        if (!isRunning) {
+            isRunning = true;
+            this.port = port;
 
-        Runnable runnable = new Runnable(){
-            public void run() {
-                try {
-                    String msg = "";
-                    udpSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
-                    udpSocket.setSoTimeout(1000);
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    try {
+                        String msg = "";
+                        udpSocket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
+                        udpSocket.setSoTimeout(1000);
 
-                    while (isRunning) {
-                        try {
-                            byte[] buf = new byte[1000000];
-                            DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                            udpSocket.receive(packet);
-                            if (callback != null) {
-                                callback.callback(new String(packet.getData()));
+                        while (isRunning) {
+                            try {
+                                byte[] buf = new byte[1000000];
+                                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                                udpSocket.receive(packet);
+                                if (callback != null) {
+                                    callback.callback(new String(packet.getData()));
+                                }
+                            } catch (Exception e) {
+                                // Nothing to do
                             }
                         }
-                        catch (Exception e)
-                        {
-                            // Nothing to do
-                        }
+                    } catch (Exception e) {
+                        // Nothing to do
                     }
                 }
-                catch (Exception e)
-                {
-                    // Nothing to do
-                }
-            }
-        };
+            };
 
-        thread = new Thread(runnable);
-        thread.start();
+            thread = new Thread(runnable);
+            thread.start();
+        }
     }
 
     public void stop()
@@ -121,6 +115,7 @@ class UDPServer {
         } catch (InterruptedException e) {
             // nothing to do
         }
+        udpSocket.close();
     }
 }
 
@@ -227,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     private ActivityMainBinding binding;
     private int PORT = 0;
     private String SEPARATOR = ";";
-    private UDPServer client = new UDPServer();
+    private UDPServer client;
     private String msg = "";
     private String lastCheckDate = "";
     private DrawView drawView;
@@ -404,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
                 }
             }
         });
+        client = new UDPServer();
     }
 
     @Override
@@ -415,6 +411,9 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
                 String contents = data.getStringExtra("SCAN_RESULT");
                 writeToFile(contents, this, CONFIG_FILE);
                 parseConfig(contents);
+                client.stop();
+                client.setCallback(this);
+                client.start(PORT);
             }
         }
     }
@@ -431,5 +430,23 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
 
         client.setCallback(this);
         client.start(PORT);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        client.stop();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if ((newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) ||
+            (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)) {
+            client.stop();
+            client.setCallback(this);
+            client.start(PORT);
+        }
     }
 }
