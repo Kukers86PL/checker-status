@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     private String CONFIG_FILE = "config.txt";
     private String DATA_FILE = "data.txt";
     private GestureDetectorCompat mDetector;
+    private String PSK = "";
 
     public class checker
     {
@@ -267,7 +268,16 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     private void parseConfig(String config)
     {
         if (config.length() > 0) {
-            PORT = Integer.parseInt(config.trim());
+            String[] temp = config.split(SEPARATOR);
+            if (temp.length == 1) {
+                PORT = Integer.parseInt(temp[0].trim());
+                PSK = "";
+            }
+            else if (temp.length == 2)
+            {
+                PORT = Integer.parseInt(temp[0].trim());
+                PSK = temp[1];
+            }
         }
     }
 
