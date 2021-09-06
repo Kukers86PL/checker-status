@@ -130,7 +130,7 @@ class DrawView extends View {
     private String lastCheckDate = "Unknown";
     Paint paint = new Paint();
     private Integer Y = 0;
-    private Integer step = 40;
+    private Integer step = 50;
     int textSize = 70;
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
