@@ -130,6 +130,7 @@ class DrawView extends View {
     private String lastCheckDate = "Unknown";
     Paint paint = new Paint();
     private Integer Y = 0;
+    private Integer step = 30;
 
     public void setData(String lastCheckDate, List<MainActivity.checker> checkers)
     {
@@ -143,12 +144,12 @@ class DrawView extends View {
     }
 
     public void yUp() {
-        Y += 35;
+        Y += step;
         invalidate();
     }
 
     public void yDown() {
-        Y -= 35;
+        Y -= step;
         invalidate();
     }
 
@@ -176,10 +177,11 @@ class DrawView extends View {
         super.onDraw(canvas);
 
         int numberOfDots = Math.max(checkers.size(), 1);
-        int dotSize = Math.max(Math.max(this.getWidth() / numberOfDots, this.getHeight() / numberOfDots) - 20, 500);
+        int dotSize = Math.max(Math.max(this.getWidth() / numberOfDots, this.getHeight() / numberOfDots), 500);
         int columns = Math.max(this.getWidth() / dotSize, 1);
-        int rows = Math.max(checkers.size() / columns, 1);
+        int rows = Math.max(this.getHeight() / dotSize ,checkers.size() / columns);
         int textSize = 60;
+        int yBorder = (rows * dotSize) - (dotSize * (this.getHeight() / dotSize)) + (dotSize / 2);
 
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -187,18 +189,17 @@ class DrawView extends View {
 
         if (checkers != null) {
             for (int i = 0; i < checkers.size(); i++) {
-
-                if (Y < -(rows * dotSize / 2) + dotSize / 2)
+                if (Y < -(yBorder))
                 {
-                    Y = -(rows * dotSize / 2) + dotSize / 2;
+                    Y = -(yBorder);
                 }
                 if (Y > 0)
                 {
                     Y = 0;
                 }
 
-                int x = (i % columns) * dotSize + dotSize / 2;
-                int y = ((i / columns) % rows) * dotSize + dotSize / 2 + Y + textSize * 3;
+                int x = ((i % columns) * dotSize) + (dotSize / 2);
+                int y = (((i / columns) % rows) * dotSize) + Y + dotSize;
 
                 MainActivity.checker checker = checkers.get(i);
                 paint.setStyle(Paint.Style.FILL);
