@@ -431,6 +431,9 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //writeToFile("", this, CONFIG_FILE);
+        //writeToFile("", this, DATA_FILE);
+
         drawView = new DrawView(this);
 
         mDetector = new GestureDetectorCompat(this,this);
