@@ -231,6 +231,9 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     private String DATA_FILE = "data.txt";
     private GestureDetectorCompat mDetector;
     private String PSK = "";
+    private int NUMBER_OF_INSTANCES = 0;
+    private int INSTANCE = -1;
+    private String CONFIG = "";
 
     public class checker
     {
@@ -294,18 +297,25 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
         writeToFile(msg, this, DATA_FILE);
     }
 
-    private void parseConfig(String config)
+    private void parseConfig()
     {
-        if (config.length() > 0) {
-            String[] temp = config.split(SEPARATOR);
-            if (temp.length == 1) {
-                PORT = Integer.parseInt(temp[0].trim());
-                PSK = "";
-            }
-            else if (temp.length == 2)
-            {
-                PORT = Integer.parseInt(temp[0].trim());
-                PSK = temp[1];
+        if (CONFIG.length() > 0) {
+            CONFIG = CONFIG.trim();
+            String[] lines = CONFIG.split("\n");
+            if (lines.length > 0) {
+                NUMBER_OF_INSTANCES = lines.length;
+                if ((INSTANCE < 0) || (INSTANCE >= lines.length))
+                {
+                    INSTANCE = 0;
+                }
+                String[] temp = lines[INSTANCE].split(SEPARATOR);
+                if (temp.length == 1) {
+                    PORT = Integer.parseInt(temp[0].trim());
+                    PSK = "";
+                } else if (temp.length == 2) {
+                    PORT = Integer.parseInt(temp[0].trim());
+                    PSK = temp[1];
+                }
             }
         }
     }
@@ -383,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
         {
             drawView.yDown();
         }
+
         return true;
     }
 
@@ -397,6 +408,12 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
 
     @Override
     public boolean onDoubleTap(MotionEvent event) {
+        INSTANCE = (INSTANCE + 1) % (NUMBER_OF_INSTANCES + 1);
+        parseConfig();
+        client.stop();
+        client.setCallback(this);
+        client.start(PORT);
+        drawView.invalidate();
         return true;
     }
 
@@ -449,8 +466,9 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
 
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
-                writeToFile(contents, this, CONFIG_FILE);
-                parseConfig(contents);
+                CONFIG += "\r\n" + contents;
+                writeToFile(CONFIG, this, CONFIG_FILE);
+                parseConfig();
                 client.stop();
                 client.setCallback(this);
                 client.start(PORT);
@@ -461,8 +479,8 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     @Override
     protected void onStart() {
         super.onStart();
-        String contents = readFromFile(this, CONFIG_FILE);
-        parseConfig(contents);
+        CONFIG = readFromFile(this, CONFIG_FILE);
+        parseConfig();
 
         msg = readFromFile(this, DATA_FILE);
         parseMsg(msg);
