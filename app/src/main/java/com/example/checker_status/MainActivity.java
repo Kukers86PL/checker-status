@@ -380,6 +380,9 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
 
     @Override
     public void onLongPress(MotionEvent event) {
+        writeToFile("", this, CONFIG_FILE);
+        writeToFile("", this, DATA_FILE);
+        System.exit(0);
     }
 
     @Override
@@ -430,9 +433,6 @@ public class MainActivity extends AppCompatActivity implements ICallback, Gestur
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //writeToFile("", this, CONFIG_FILE);
-        //writeToFile("", this, DATA_FILE);
 
         drawView = new DrawView(this);
 
